@@ -50,31 +50,50 @@ function App() {
   }, []);
 
   return (
-    <main className="dark min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-8">
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
+      <div className="dark min-h-screen bg-background text-foreground">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <DashboardHeader period={period} />
 
-          {error ? (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive-foreground">
-              {error}
-            </div>
-          ) : null}
-
-          <section aria-label="Key performance indicators">
-            <KPIRow metrics={metrics} loading={loading} />
-          </section>
-
-          <section
-            aria-label="Financial charts"
-            className="grid grid-cols-1 gap-4 xl:grid-cols-2"
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="mt-8 flex flex-col gap-8"
           >
-            <IncomeOutcomeChart data={monthlyData} loading={loading} />
-            <ProfitPercentChart data={monthlyData} loading={loading} />
-          </section>
+            {error ? (
+              <div
+                lang="es"
+                role="alert"
+                className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive-foreground"
+              >
+                {error}
+              </div>
+            ) : null}
+
+            <section aria-labelledby="kpi-heading">
+              <h2 id="kpi-heading" className="sr-only">
+                Key performance indicators
+              </h2>
+              <KPIRow metrics={metrics} loading={loading} />
+            </section>
+
+            <section
+              aria-labelledby="charts-heading"
+              className="grid grid-cols-1 gap-4 xl:grid-cols-2"
+            >
+              <h2 id="charts-heading" className="sr-only">
+                Financial charts
+              </h2>
+              <IncomeOutcomeChart data={monthlyData} loading={loading} />
+              <ProfitPercentChart data={monthlyData} loading={loading} />
+            </section>
+          </main>
         </div>
       </div>
-    </main>
+    </>
   );
 }
 
