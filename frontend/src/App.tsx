@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { KPIRow } from "@/components/dashboard/kpi-row";
-import { IncomeOutcomeChart } from "@/components/dashboard/income-outcome-chart";
-import { ProfitPercentChart } from "@/components/dashboard/profit-percent-chart";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   type FinancialMovement,
   type KPIMetrics,
@@ -16,12 +20,37 @@ import {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
+const IncomeOutcomeChart = lazy(() =>
+  import("@/components/dashboard/income-outcome-chart").then(
+    ({ IncomeOutcomeChart }) => ({ default: IncomeOutcomeChart }),
+  ),
+);
+const ProfitPercentChart = lazy(() =>
+  import("@/components/dashboard/profit-percent-chart").then(
+    ({ ProfitPercentChart }) => ({ default: ProfitPercentChart }),
+  ),
+);
+
 async function fetchFinancialData(): Promise<FinancialMovement[]> {
   const response = await fetch(`${API_BASE_URL}/api/metrics`);
   if (!response.ok) {
     throw new Error(`Failed to fetch financial data: ${response.status}`);
   }
   return response.json();
+}
+
+function ChartLoadingFallback() {
+  return (
+    <Card aria-hidden="true" className="border-border/60">
+      <CardHeader className="pb-4">
+        <Skeleton className="h-5 w-52" />
+        <Skeleton className="mt-1 h-3 w-64" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-[280px] w-full rounded-lg" />
+      </CardContent>
+    </Card>
+  );
 }
 
 function App() {
@@ -87,8 +116,12 @@ function App() {
               <h2 id="charts-heading" className="sr-only">
                 Financial charts
               </h2>
-              <IncomeOutcomeChart data={monthlyData} loading={loading} />
-              <ProfitPercentChart data={monthlyData} loading={loading} />
+              <Suspense fallback={<ChartLoadingFallback />}>
+                <IncomeOutcomeChart data={monthlyData} loading={loading} />
+              </Suspense>
+              <Suspense fallback={<ChartLoadingFallback />}>
+                <ProfitPercentChart data={monthlyData} loading={loading} />
+              </Suspense>
             </section>
           </main>
         </div>
